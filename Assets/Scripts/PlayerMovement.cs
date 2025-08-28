@@ -4,7 +4,7 @@ public class PlayerMovement : NetworkBehaviour
 {
     [Header("References")]
     private Rigidbody rb;
-    private PlayerInputsManager inputsManager;
+    public PlayerInputsManager inputsManager;
     [Header("Movement Values")]
     [SerializeField] private float speed = 2f;
     [SerializeField] private float jumpForce = 5f;
@@ -38,7 +38,14 @@ public class PlayerMovement : NetworkBehaviour
             inputsManager.jumpInput -= OnJump;
         }
     }
-
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            CameraFollow cam = Camera.main.GetComponent<CameraFollow>();
+            cam.SetTarget(transform);
+        }
+    }
     private void OnMove(Vector2 move)
     {
         currentMove = move;
@@ -57,6 +64,8 @@ public class PlayerMovement : NetworkBehaviour
     }
     private void FixedUpdate()
     {
+        if (!IsOwner) return;
+
         MoveFixed();
 
         JumpFixed();
